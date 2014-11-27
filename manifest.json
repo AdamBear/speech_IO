@@ -1,0 +1,27 @@
+{
+    "name": "baidu_speech",
+    "version": "0.2",
+    "manifest_version": 2,
+    "description": "baidu speech extension",
+    "icons":{
+        "16":"ico/icon_16.ico",
+        "32":"ico/icon_32.ico",
+        "48":"ico/icon_48.ico",
+        "64":"ico/icon_64.ico",
+        "128":"ico/icon_128.ico"
+    },
+    "background":{"page":"background.html"},
+    "browser_action": {
+        "default_icon": "ico/icon_32.ico",
+        "default_title": "change mode",
+        "default_popup": "popup.html"
+    },
+    "options_page":"options.html",
+    "permissions": [
+        "contextMenus",
+        "tabs",
+        "ttsEngine",
+        "tts",
+        "<all_urls>"
+        ]
+}

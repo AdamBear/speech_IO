@@ -1,0 +1,56 @@
+html, body, div, span, img, a , ul, li, p {
+    margin:0px;
+    padding:0px;
+    border:0px;
+}
+body {
+    font-family: "华文楷体", "arial";
+}
+hr {
+    margin:0px;
+}
+
+body{
+    padding:5px;
+}
+.popup_menu {
+    width:100px;
+    list-style-type: none;
+    border:1px;
+}
+.popup_menu a{
+    display:block;
+    width:100px;
+    overflow:hidden;
+    height:20px;
+    line-height:20px;
+    text-decoration:none;
+    color: #000;
+}
+.popup_menu a:hover {
+    color:yellow;
+    background-color:blue;
+}
+.popup_menu a span {
+    display:inline-block;
+    width:20px;
+}
+
+.language_menu a{
+    display:block;
+    width:100px;
+    overflow:hidden;
+    height:20px;
+    line-height:20px;
+    text-decoration:none;
+    color: #000;
+}
+.language_menu a:hover {
+    color:yellow;
+    background-color:blue;
+}
+
+.language_menu a span {
+    display:inline-block;
+    width:20px;
+}
