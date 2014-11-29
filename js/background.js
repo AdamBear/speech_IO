@@ -156,6 +156,13 @@ var audio = document.querySelector('audio');
 function startRecording() {
     if (navigator.getUserMedia) {
         navigator.getUserMedia({audio: true}, onSuccess, onFail);
+
+        setTimeout(function(){
+            stopRecording();
+
+            }
+            , 5000
+        );
     } else {
         console.log('navigator.getUserMedia not present');
     }
@@ -164,10 +171,13 @@ function startRecording() {
 function stopRecording() {
     recorder.stop();
     recorder.exportWAV(function(s) {
+        console.log(audio);
+        audio.src = window.URL.createObjectURL(s);
+        audio.play();
+        Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
         speechRecognition(s);
         // post to server
         //window.xb = s;
-        //audio.src = window.URL.createObjectURL(s);
     });
 }
 
@@ -175,16 +185,18 @@ function speechRecognition(b){
     window.xb = b;
     var url = "http://vop.baidu.com/server_api";
     var fr = new FileReader();
+    window.fr = fr;
     fr.readAsDataURL(b);
     fr.onload = function(){
         var params = {
             format:'wav',
-            rate:8000,
+            //rate:8000,
+            rate:16000,
             channel:1,
             cuid:'8908bd1e130117887372a35091c48ef6',
             token:'24.f073d9e3db037ede740bbbdfeac86f5e.2592000.1419692380.282335-1615711',
             lan:'zh',
-            speech:fr.result,
+            speech:fr.result.substr(22),
             len:b.size,
         };
 
@@ -194,7 +206,7 @@ function speechRecognition(b){
             type:'post',
             contentType:'application/json',
             data:postdata,
-            header:"Content-Length: " + postdata.length,
+            //header:"Content-Length: " + postdata.length,
             success:function(d){
                 console.log(d);
             },
