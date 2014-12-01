@@ -18,48 +18,37 @@ function genericOnClick(info, tab){
 
     startRecording();
     return;
-    chrome.tts.speak('hello world');
-    console.log(info);
-    console.log(tab);
-    chrome.browserAction.setBadgeText({"text":"v"});
-    chrome.browserAction.setBadgeBackgroundColor({"color":"#00ff00"});
+    //chrome.tts.speak('hello world');
     //console.log(info);
-    //console.log(info.pageUrl);
-    //console.log(window.getSelection());
-    //console.log(window.getSelection().toString());
-    //console.log(window.getSelection().anchorNode.data.toString().trim());
-    var word = info.selectionText;
-    //console.log('source word is : ', word);
-    //add balloon
-    var balloon;
-    return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
-        return chrome.tabs.getSelected(null, function(tab){
-            return chrome.tabs.sendMessage(tab.id, {'method':'prepareBalloon'}, function(res){
-                //console.log(res.sentence);
-                var sentence = res.sentence;
-                return translate2chinese(word, function(err, data){
-                    if(err){ 
-                        return console.log(err);
-                    }
-                    //console.log(data);
-                    return chrome.tabs.sendMessage(tab.id, {'method':'showResult', 'resstr':data}, function(res){
-                        //console.log(res.msg);
-                        var theWord = {
-                            word    :   word,
-                           data    :   data,
-                           sentence:   sentence
-                        };
-                        return addToNewWordsList(theWord);
-                    });
-                });
-            });
-        });
-    });
-}
-
-//add new word to new words list. include pr, translate, sentence
-function addToNewWordsList(theWord){
-    console.log(theWord);
+    //console.log(tab);
+    //chrome.browserAction.setBadgeText({"text":"v"});
+    //chrome.browserAction.setBadgeBackgroundColor({"color":"#00ff00"});
+    ////console.log(info);
+    ////console.log(info.pageUrl);
+    ////console.log(window.getSelection());
+    ////console.log(window.getSelection().toString());
+    ////console.log(window.getSelection().anchorNode.data.toString().trim());
+    //var word = info.selectionText;
+    ////console.log('source word is : ', word);
+    ////add balloon
+    //var balloon;
+    //return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
+    //    return chrome.tabs.getSelected(null, function(tab){
+    //        return chrome.tabs.sendMessage(tab.id, {'method':'prepareBalloon'}, function(res){
+    //            //console.log(res.sentence);
+    //            var sentence = res.sentence;
+    //            return translate2chinese(word, function(err, data){
+    //                if(err){ 
+    //                    return console.log(err);
+    //                }
+    //                //console.log(data);
+    //                return chrome.tabs.sendMessage(tab.id, {'method':'showResult', 'resstr':data}, function(res){
+    //                    //console.log(res.msg);
+    //                });
+    //            });
+    //        });
+    //    });
+    //});
 }
 
 var showResult = function(string){
@@ -123,9 +112,9 @@ function startRecording() {
     if (navigator.getUserMedia) {
         navigator.getUserMedia({audio: true}, onSuccess, onFail);
 
-        setTimeout(function(){
-            stopRecording();
-
+        setTimeout(
+            function(){
+                stopRecording();
             }
             , 5000
         );
@@ -137,13 +126,13 @@ function startRecording() {
 function stopRecording() {
     recorder.stop();
     recorder.exportWAV(function(s) {
-        console.log(audio);
+        //console.log(audio);
         audio.src = window.URL.createObjectURL(s);
-        audio.play();
-        Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
+        //audio.play();
+        //Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
         speechRecognition(s);
         // post to server
-        //window.xb = s;
+        window.xb = s;
     });
 }
 
@@ -160,7 +149,8 @@ function speechRecognition(b){
             rate:16000,
             channel:1,
             cuid:'8908bd1e130117887372a35091c48ef6',
-            token:'24.f073d9e3db037ede740bbbdfeac86f5e.2592000.1419692380.282335-1615711',
+            //token:'24.f073d9e3db037ede740bbbdfeac86f5e.2592000.1419692380.282335-1615711',
+            token:'24.0ad4f7db90cba5cf0615889d92ce6f66.2592000.1420046822.282335-4815863',
             lan:'zh',
             speech:fr.result.substr(22),
             len:b.size,

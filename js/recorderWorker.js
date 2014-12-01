@@ -1,6 +1,6 @@
 var recLength = 0,
   recBuffersL = [],
-  recBuffersR = [],
+  //recBuffersR = [],
   sampleRate;
 //var bdSampleRate = 8000;
 var bdSampleRate = 16000;
@@ -31,7 +31,7 @@ function init(config){
 
 function record(inputBuffer){
   recBuffersL.push(inputBuffer[0]);
-  recBuffersR.push(inputBuffer[1]);
+  //recBuffersR.push(inputBuffer[1]);
   recLength += inputBuffer[0].length;
 }
 
@@ -49,14 +49,14 @@ function exportWAV(type){
 function getBuffer() {
   var buffers = [];
   buffers.push( mergeBuffers(recBuffersL, recLength) );
-  buffers.push( mergeBuffers(recBuffersR, recLength) );
+  //buffers.push( mergeBuffers(recBuffersR, recLength) );
   this.postMessage(buffers);
 }
 
 function clear(){
   recLength = 0;
   recBuffersL = [];
-  recBuffersR = [];
+  //recBuffersR = [];
 }
 
 function mergeBuffers(recBuffers, recLength){

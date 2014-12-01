@@ -3,9 +3,13 @@
   var WORKER_PATH = 'js/recorderWorker.js';
 
   var Recorder = function(source, cfg){
+    var self = this;
     var config = cfg || {};
     var bufferLen = config.bufferLen || 4096;
     this.context = source.context;
+    this.emptydatacount = 0;
+    this.stopedddd = false;
+    // init empdata array
     //this.node = (this.context.createScriptProcessor ||
     //             this.context.createJavaScriptNode).call(this.context,
     //                                                     bufferLen, 2, 2);
@@ -23,7 +27,9 @@
       currCallback;
 
     this.node.onaudioprocess = function(e){
+      self.isEmptyData(e.inputBuffer.getChannelData(0));
       if (!recording) return;
+      //console.log(e.inputBuffer.getChannelData(0));
       worker.postMessage({
         command: 'record',
         buffer: [
@@ -68,6 +74,32 @@
       });
     }
 
+    this.isEmptyData = function(d){
+        // 基本确定采样得到的语音数据是空，即没有语音输入
+        if(
+            d[0] == 0
+            && d[10] == 0
+            && d[100] == 0
+            && d[1000] == 0
+            && d[2000] == 0
+            && d[3000] == 0
+            && d[4000] == 0
+        ){
+            self.emptydatacount ++;
+            
+            if(self.emptydatacount > 10){
+                recording = false;
+                console.log('stoped');
+                self.stopedddd = true;
+                return true;
+            }
+        }
+        else{
+            self.emptydatacount = 0;
+        }
+        return false;
+    }
+
     worker.onmessage = function(e){
       var blob = e.data;
       currCallback(blob);
@@ -75,6 +107,7 @@
 
     source.connect(this.node);
     this.node.connect(this.context.destination);    //this should not be necessary
+
   };
 
   Recorder.forceDownload = function(blob, filename){
