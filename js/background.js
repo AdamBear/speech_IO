@@ -10,7 +10,7 @@
 //    else{
 //        current = '_grey';
 //    }
-//}
+//} 
 //chrome.browserAction.onClicked.addListener(updateIcon);
 
 
@@ -56,6 +56,7 @@ function genericOnClick(info, tab){
         });
     });
 }
+
 //add new word to new words list. include pr, translate, sentence
 function addToNewWordsList(theWord){
     console.log(theWord);
@@ -65,15 +66,8 @@ var showResult = function(string){
     chrome.tabs.sendRequest(null, {'method':'getContextMenus', 'string':string}, function(){});
 }
 var id = chrome.contextMenus.create({"title":'baidu_speech', "contexts":['editable'], "onclick":genericOnClick});
-/*
-*/
+
 function translate2chinese(source, callback){
-    var mode = localStorage.getItem('t2c_mode');
-    if(mode == 'learn' && source.trim().indexOf(' ') < 0){
-        //iciba don't support sentence translate
-        return translate2chineseByIciba(source, callback);
-    }
-    var from = localStorage.getItem('t2c_from');
     $.ajax({
         url : 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate',
         data : {
@@ -102,36 +96,6 @@ function translate2chinese(source, callback){
     });
 }
 
-function translate2chineseByIciba(source, callback){
-    var source = encodeURIComponent(source);
-
-    $.ajax({
-        url : 'http://dict-co.iciba.com/api/dictionary.php',
-        data : {
-            'w' : source
-        },
-        dataType:'xml',
-        success : function(resxml)  {
-
-            var resjson = $.xml2json(resxml);
-            console.log(resjson);
-            var resstr = '';
-            resstr += resjson.key + '\n';
-            resstr += typeof resjson.ps === 'string' ? '[' + resjson.ps + ']\n' : '[' + resjson.ps[0] + '] , [' + resjson.ps[1] + ']\n';
-            resstr += resjson.acceptation;
-            callback(null,resstr); 
-        },
-        error : function(jqXHR, textStatus, errorThrown) {
-                    //var T = 'ERROR! ' + textStatus;
-                    //chrome.tabs.getSelected(null, function(tab) { // get selected string in current tab
-                    //    chrome.tabs.executeScript(tab.id,{file:'js/content.js',allFrames:true},function() {injCallBack(T)});
-                    //});
-                    callback('ERROR:', textStatus);
-                }
-    });
-}
-
-//function x(){
 
 var onFail = function(e) {
     console.log('Rejected!', e);
@@ -152,6 +116,8 @@ navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia
 
 var recorder;
 var audio = document.querySelector('audio');
+
+firstTimeCheck();
 
 function startRecording() {
     if (navigator.getUserMedia) {
@@ -219,6 +185,37 @@ function speechRecognition(b){
     }
 }
 
+function firstTimeCheck(){
+    if (!Settings.keyExists("first_time")) {
+        Settings.setValue("first_time", "no");
+        openOptionPage();
+    }   
+    return false;
+}
+
+function openOptionPage(){
+    var url = "options.html";
+
+    var fullUrl = chrome.extension.getURL(url);
+    chrome.tabs.getAllInWindow(null, function (tabs) {
+        for (var i in tabs) { // check if Options page is open already
+            if (tabs.hasOwnProperty(i)) {
+                var tab = tabs[i];
+                if (tab.url == fullUrl) {
+                    chrome.tabs.update(tab.id, { selected:true }); // select the tab
+                    return;
+                }
+            }
+        }
+        chrome.tabs.getSelected(null, function (tab) { // open a new tab next to currently selected tab
+            chrome.tabs.create({
+                url:url,
+                index:tab.index + 1
+            });
+        });
+    });
+
+}
 
 
 //}

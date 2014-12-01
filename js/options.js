@@ -1,24 +1,20 @@
     var onFail = function(e) {
-        console.log('Rejected!', e);
+        tip.innerText = '未取得录音权限，将不能使用扩展提供的语音识别功能！';
+        re_auth_btn.style.display = 'show';
+        // TODO: 
     };
 
     var onSuccess = function(s) {
-        var context = new webkitAudioContext();
-        var mediaStreamSource = context.createMediaStreamSource(s);
-        recorder = new Recorder(mediaStreamSource);
-        recorder.record();
-
-        // audio loopback
-        // mediaStreamSource.connect(context.destination);
+        tip.innerText = '已经取得录音权限，现在可以使用语音识别输入啦！';
     }
 
     window.URL = window.URL || window.webkitURL;
     navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
     var recorder;
-    var audio = document.querySelector('audio');
+    //var audio = document.querySelector('audio');
 
-    function startRecording() {
+    function checkRecordPermission() {
         if (navigator.getUserMedia) {
             navigator.getUserMedia({audio: true}, onSuccess, onFail);
         } else {
@@ -26,11 +22,11 @@
         }
     }
 
-    function stopRecording() {
-        recorder.stop();
-        recorder.exportWAV(function(s) {
-            audio.src = window.URL.createObjectURL(s);
-        });
-    }
+    //function stopRecording() {
+    //    recorder.stop();
+    //    recorder.exportWAV(function(s) {
+    //        audio.src = window.URL.createObjectURL(s);
+    //    });
+    //}
 
-    startRecording();
+    checkRecordPermission();
