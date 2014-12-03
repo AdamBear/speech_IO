@@ -202,6 +202,10 @@ if(!window.TranslateSelectionIsActive){
 				balloon.placeTop();
 				sendResponse({msg:'done'});
 			}
+
+            if(req.method == 'fillText'){
+                console.log(req.text);
+            }
 		}
 	);
 

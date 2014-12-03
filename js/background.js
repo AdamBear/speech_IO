@@ -1,89 +1,25 @@
 //author    :    veizz
 //date      :   2012-08-18
 
-//var current = '_grey';
-//function updateIcon() {
-//    chrome.browserAction.setIcon({path:"ico/icon_32" + current + ".ico"});
-//    if (current === '_grey'){
-//        current = '';
-//    }
-//    else{
-//        current = '_grey';
-//    }
-//} 
-//chrome.browserAction.onClicked.addListener(updateIcon);
-
-
 function genericOnClick(info, tab){
-
+    console.log(info);
+    console.log(tab);
+    alert(1);
+    // set tip recording
     startRecording();
     return;
-    //chrome.tts.speak('hello world');
-    //console.log(info);
-    //console.log(tab);
-    //chrome.browserAction.setBadgeText({"text":"v"});
-    //chrome.browserAction.setBadgeBackgroundColor({"color":"#00ff00"});
-    ////console.log(info);
-    ////console.log(info.pageUrl);
-    ////console.log(window.getSelection());
-    ////console.log(window.getSelection().toString());
-    ////console.log(window.getSelection().anchorNode.data.toString().trim());
-    //var word = info.selectionText;
-    ////console.log('source word is : ', word);
-    ////add balloon
-    //var balloon;
-    //return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
-    //    return chrome.tabs.getSelected(null, function(tab){
-    //        return chrome.tabs.sendMessage(tab.id, {'method':'prepareBalloon'}, function(res){
-    //            //console.log(res.sentence);
-    //            var sentence = res.sentence;
-    //            return translate2chinese(word, function(err, data){
-    //                if(err){ 
-    //                    return console.log(err);
-    //                }
-    //                //console.log(data);
-    //                return chrome.tabs.sendMessage(tab.id, {'method':'showResult', 'resstr':data}, function(res){
-    //                    //console.log(res.msg);
-    //                });
-    //            });
-    //        });
-    //    });
-    //});
 }
 
 var showResult = function(string){
     chrome.tabs.sendRequest(null, {'method':'getContextMenus', 'string':string}, function(){});
 }
-var id = chrome.contextMenus.create({"title":'baidu_speech', "contexts":['editable'], "onclick":genericOnClick});
-
-function translate2chinese(source, callback){
-    $.ajax({
-        url : 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate',
-        data : {
-            'appId'       : '76518BFCEBBF18E107C7073FBD4A735001B56BB1',
-        'text'        : source,
-        'from'        : from,
-        'to'          : 'zh-CHS',
-        'contentType' : 'text/plain'
-        },
-        dataType:'text',
-        success : function(resstr)  {
-            //T = T.replace(/^"|"$/gi,'');
-            //chrome.tabs.getSelected(null, function(tab) { // get selected string in current tab
-            //    chrome.tabs.executeScript(tab.id,{file:'js/content.js',allFrames:true},function() {injCallBack(T)});
-            //});
-            //console.log(resstr);
-            callback(null, resstr);
-        },
-        error : function(jqXHR, textStatus, errorThrown) {
-                    //var T = 'ERROR! ' + textStatus;
-                    //chrome.tabs.getSelected(null, function(tab) { // get selected string in current tab
-                    //    chrome.tabs.executeScript(tab.id,{file:'js/content.js',allFrames:true},function() {injCallBack(T)});
-                    //});
-                    callback('ERROR:', textStatus);
-                }
-    });
-}
+//var id = chrome.contextMenus.create({"title":'baidu_speech', "contexts":['editable'], "onclick":genericOnClick});
+var id = chrome.contextMenus.create({
+    title:'语音识别', 
+    id: 'recog_menu_btn',
+    contexts:['editable'], 
+    onclick:genericOnClick
+});
 
 
 var onFail = function(e) {
@@ -95,7 +31,6 @@ var onSuccess = function(s) {
     var mediaStreamSource = context.createMediaStreamSource(s);
     recorder = new Recorder(mediaStreamSource);
     recorder.record();
-
     // audio loopback
     // mediaStreamSource.connect(context.destination);
 }
@@ -136,7 +71,8 @@ function stopRecording() {
     });
 }
 
-function speechRecognition(b){
+function speechRecognition(b, callback){
+    // TODO: tip 正在识别
     window.xb = b;
     var url = "http://vop.baidu.com/server_api";
     var fr = new FileReader();
@@ -155,6 +91,7 @@ function speechRecognition(b){
             speech:fr.result.substr(22),
             len:b.size,
         };
+        console.log(params);
 
         var postdata = JSON.stringify(params);
         $.ajax({
@@ -165,13 +102,18 @@ function speechRecognition(b){
             //header:"Content-Length: " + postdata.length,
             success:function(d){
                 console.log(d);
+                if(callback){
+                    var recogedtext = '';
+                    return callback(recogedtext);
+                }
             },
             error:function(e){
                 console.log('e:', e);
+                var recogedtext = '未识别请重试';
+                return callback('');
             },
         });
 
-        console.log(params);
     }
 }
 
@@ -201,6 +143,27 @@ function openOptionPage(){
             chrome.tabs.create({
                 url:url,
                 index:tab.index + 1
+            });
+        });
+    });
+
+}
+
+function fillText(s){
+    return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
+        return chrome.tabs.getSelected(null, function(tab){
+            return chrome.tabs.sendMessage(tab.id, {'method':'fillText', text:s}, function(res){
+                //console.log(res.sentence);
+                //var sentence = res.sentence;
+                //return translate2chinese(word, function(err, data){
+                //    if(err){ 
+                //        return console.log(err);
+                //    }
+                //    //console.log(data);
+                //    return chrome.tabs.sendMessage(tab.id, {'method':'showResult', 'resstr':data}, function(res){
+                //        //console.log(res.msg);
+                //    });
+                //});
             });
         });
     });
