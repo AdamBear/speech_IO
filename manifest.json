@@ -11,8 +11,7 @@
         "128":"ico/icon_128.ico"
     },
     "background":{
-        "page":"background.html",
-        "persistent":false
+        "page":"background.html"
     },
     "browser_action": {
         "default_icon": "ico/icon_32.ico",
@@ -33,7 +32,7 @@
                 "voice_name" : "zh_cn",
                 "lang" : "zh-CN",
                 "gender" : "female",
-                "event_types":["start", "end"]
+                "event_types":["start", "end", "error"]
             }
         ]
     }
