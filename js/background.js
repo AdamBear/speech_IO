@@ -4,8 +4,8 @@
 function genericOnClick(info, tab){
     console.log(info);
     console.log(tab);
-    alert(1);
     // set tip recording
+    sendCmd('showTip', {msg:'正在识别中...'});
     startRecording();
     return;
 }
@@ -65,7 +65,10 @@ function stopRecording() {
         audio.src = window.URL.createObjectURL(s);
         //audio.play();
         //Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
-        speechRecognition(s);
+        speechRecognition(s,function(text){
+            sendCmd('closeTip', {});
+            return fillText(text);
+        });
         // post to server
         window.xb = s;
     });
@@ -103,7 +106,7 @@ function speechRecognition(b, callback){
             success:function(d){
                 console.log(d);
                 if(callback){
-                    var recogedtext = '';
+                    var recogedtext = d.result[0];
                     return callback(recogedtext);
                 }
             },
@@ -150,24 +153,17 @@ function openOptionPage(){
 }
 
 function fillText(s){
+    return sendCmd('fillText', {msg:s});
+}
+
+function sendCmd(cmd, obj){
     return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
         return chrome.tabs.getSelected(null, function(tab){
-            return chrome.tabs.sendMessage(tab.id, {'method':'fillText', text:s}, function(res){
-                //console.log(res.sentence);
-                //var sentence = res.sentence;
-                //return translate2chinese(word, function(err, data){
-                //    if(err){ 
-                //        return console.log(err);
-                //    }
-                //    //console.log(data);
-                //    return chrome.tabs.sendMessage(tab.id, {'method':'showResult', 'resstr':data}, function(res){
-                //        //console.log(res.msg);
-                //    });
-                //});
+            return chrome.tabs.sendMessage(tab.id, {'method':cmd, params:obj}, function(res){
+
             });
         });
     });
-
 }
 
 
