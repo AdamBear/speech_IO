@@ -1,28 +1,27 @@
 (function(){
-    //var tts_url_prefix = "http://127.0.0.1/voice?word=";
-    var speakListener = function(utterance, options, cb) {
+    var ttsUrlPrefix = "http://10.211.245.28:8287/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
+    var speakListener = function(utterance, options, sendTtsEvent) {
         
-        cb({type:'start', charIndex:0});
-        console.log(utterance);
-        setTimeout(function(){
-            //console.log(utterance);
-            //console.log(options);
-            cb({type:'end', charIndex:utterance.length});
-            //cb({type:'error', charIndex:utterance.length , errorMessage:'eeee'});
-        }, 2000);
-        //console.log(sendTtsEvent);
-        //return;
-        //sendTtsEvent({'event_type': 'start', 'charIndex': 0})
+        // tts start
+        console.log('tts stoped');
+        sendTtsEvent({type:'start', charIndex:0});
+        console.log('audio start: ', utterance);
 
-        // (start speaking)
-        //console.log(utterance);
+        var url = ttsUrlPrefix + utterance;
+        tts_audio.src = url;
+        tts_audio.play();
 
-        //sendTtsEvent({'event_type': 'end', 'charIndex': utterance.length})
+        tts_audio.addEventListener('ended', function(){
+            // tts end
+            console.log('audio ended');
+            sendTtsEvent({type:'end', charIndex:utterance.length});
+        });
     };
 
     var stopListener = function() {
         // (stop all speech)
-        console.log('stoped');
+        console.log('tts stoped');
+        tts_audio.pause();
     };
 
     chrome.ttsEngine.onSpeak.addListener(speakListener);
