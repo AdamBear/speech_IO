@@ -65,9 +65,14 @@ function stopRecording() {
         audio.src = window.URL.createObjectURL(s);
         //audio.play();
         //Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
-        speechRecognition(s,function(text){
-            sendCmd('closeTip', {});
-            return fillText(text);
+        speechRecognition(s,function(err, text){
+            if(!err){
+                sendCmd('closeTip', {});
+                return fillText(text);
+            }
+            else{
+                sendCmd('closeTip', {timeout:2000, msg:'未能识别，请重试'});
+            }
         });
         // post to server
         window.xb = s;
@@ -106,8 +111,14 @@ function speechRecognition(b, callback){
             success:function(d){
                 console.log(d);
                 if(callback){
-                    var recogedtext = d.result[0];
-                    return callback(recogedtext);
+                    var recogedtext = '';
+                    if(d.err_no == 0){
+                        recogedtext = d.result[0];
+                        return callback(0, recogedtext);
+                    }
+                    else{
+                        return callback(d.err_no, '');
+                    }
                 }
             },
             error:function(e){
