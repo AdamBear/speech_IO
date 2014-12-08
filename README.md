@@ -2,8 +2,8 @@
 
 这是一个google chrome的扩展。可以用来语音输入，语音播报网页内容。
 
-motivated by "百度2014年最后一季hackathon", 咱可以奔着那个xbox去的呀
-梦想还是要有的，万一实现了呢 :P
+motivated by "百度2014年最后一季hackathon", 咱可以奔着那个xbox去的呀  
+梦想还是要有的，万一实现了呢 :)
 
 ### 安装方式
 
