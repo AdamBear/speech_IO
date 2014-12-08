@@ -8,7 +8,6 @@
     var bufferLen = config.bufferLen || 4096;
     this.context = source.context;
     this.emptydatacount = 0;
-    this.stopedddd = false;
     // init empdata array
     //this.node = (this.context.createScriptProcessor ||
     //             this.context.createJavaScriptNode).call(this.context,
@@ -52,7 +51,12 @@
     }
 
     this.stop = function(){
-      recording = false;
+        if(recording == true){
+            recording = false;
+            if(typeof self.onStop == 'function'){
+                self.onStop();
+            }
+        }
     }
 
     this.clear = function(){
@@ -88,9 +92,9 @@
             self.emptydatacount ++;
             
             if(self.emptydatacount > 10){
-                recording = false;
+                //recording = false;
+                self.stop();
                 console.log('stoped');
-                self.stopedddd = true;
                 return true;
             }
         }
@@ -100,6 +104,9 @@
         return false;
     }
 
+    // stop callback
+    this.onStop = null;
+    
     worker.onmessage = function(e){
       var blob = e.data;
       currCallback(blob);

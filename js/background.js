@@ -35,7 +35,27 @@ var onSuccess = function(s) {
         audio_media_stream_source = audio_context.createMediaStreamSource(s);
     }
     recorder = new Recorder(audio_media_stream_source);
+    recorder.onStop = function(){
+        recorder.exportWAV(function(s) {
+            //console.log(audio);
+            audio.src = window.URL.createObjectURL(s);
+            //audio.play();
+            //Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
+            speechRecognition(s,function(err, text){
+                if(!err){
+                    sendCmd('closeTip', {});
+                    return fillText(text);
+                }
+                else{
+                    sendCmd('closeTip', {timeout:2000, msg:'未能识别，请重试'});
+                }
+            });
+            // post to server
+            window.xb = s;
+        });
+    }
     recorder.record();
+
     // audio loopback
     // mediaStreamSource.connect(context.destination);
 }
@@ -51,37 +71,9 @@ firstTimeCheck();
 function startRecording() {
     if (navigator.getUserMedia) {
         navigator.getUserMedia({audio: true}, onSuccess, onFail);
-
-        setTimeout(
-            function(){
-                stopRecording();
-            }
-            , 3000
-        );
     } else {
         console.log('navigator.getUserMedia not present');
     }
-}
-
-function stopRecording() {
-    recorder.stop();
-    recorder.exportWAV(function(s) {
-        //console.log(audio);
-        audio.src = window.URL.createObjectURL(s);
-        //audio.play();
-        //Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
-        speechRecognition(s,function(err, text){
-            if(!err){
-                sendCmd('closeTip', {});
-                return fillText(text);
-            }
-            else{
-                sendCmd('closeTip', {timeout:2000, msg:'未能识别，请重试'});
-            }
-        });
-        // post to server
-        window.xb = s;
-    });
 }
 
 function speechRecognition(b, callback){
