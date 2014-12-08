@@ -26,10 +26,15 @@ var onFail = function(e) {
     console.log('Rejected!', e);
 };
 
+var audio_context = null;
+var audio_media_stream_source = null;
+
 var onSuccess = function(s) {
-    var context = new webkitAudioContext();
-    var mediaStreamSource = context.createMediaStreamSource(s);
-    recorder = new Recorder(mediaStreamSource);
+    if(audio_context == null){
+        audio_context = new webkitAudioContext();
+        audio_media_stream_source = audio_context.createMediaStreamSource(s);
+    }
+    recorder = new Recorder(audio_media_stream_source);
     recorder.record();
     // audio loopback
     // mediaStreamSource.connect(context.destination);
@@ -51,7 +56,7 @@ function startRecording() {
             function(){
                 stopRecording();
             }
-            , 5000
+            , 3000
         );
     } else {
         console.log('navigator.getUserMedia not present');
