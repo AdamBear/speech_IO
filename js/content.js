@@ -1,6 +1,8 @@
 if(!window.speechRecognition){
     //var balloon;
-    var speech_IO = {};
+    if(!window.speech_IO){
+        window.speech_IO = {};
+    }
 
     speech_IO.showTip = function(tip){
         console.log(tip);
