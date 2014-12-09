@@ -26,8 +26,8 @@
       currCallback;
 
     this.node.onaudioprocess = function(e){
-      self.isEmptyData(e.inputBuffer.getChannelData(0));
       if (!recording) return;
+      self.isEmptyData(e.inputBuffer.getChannelData(0));
       //console.log(e.inputBuffer.getChannelData(0));
       worker.postMessage({
         command: 'record',
@@ -80,15 +80,15 @@
 
     this.isEmptyData = function(d){
         // 基本确定采样得到的语音数据是空，即没有语音输入
-        if(
-            d[0] == 0
-            && d[10] == 0
-            && d[100] == 0
-            && d[1000] == 0
-            && d[2000] == 0
-            && d[3000] == 0
-            && d[4000] == 0
-        ){
+        // 非常简单的基于音量的端点检测算法
+        // 这个循环加操作执行用时不超过1ms
+        var l = Math.floor(d.length / 10);
+        var vol = 0;
+        for(var i = 0; i < l ; i++){
+            vol += Math.abs(d[i*10]);
+        }
+        
+        if(vol < 10){
             self.emptydatacount ++;
             
             if(self.emptydatacount > 10){
