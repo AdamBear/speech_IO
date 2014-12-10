@@ -5,14 +5,78 @@ if(!window.speechRecognitionInjection){
     
     if(!window.speech_IO){
         window.speech_IO = {};
+        speech_IO.audio = {};
+        speech_IO.audio.contents = [];
     }
 
     speech_IO.supportSites = {
         'read.qidian.com':'getQidianContents',
-        //'read.qidian.com':'getQidianContents',
+        'book.zongheng.com':'getZonghengContents',
+        'chuangshi.qq.com':'getChuangshiContents',
+        'tieba.baidu.com':'getTiebaContents',
     };
 
-    if(speech_IO.supportSites[document.location.hostname]){
+    speech_IO.audio.prepareContents = function(content){
+
+        var strArr = content.split(/[,.!?;，。！？；]/);
+        var res = [];
+        for(i in strArr){
+            if(strArr[i].trim() != ''){
+                res.push(strArr[i]);
+            }
+        }
+        return res;
+    }
+
+
+    speech_IO.audio.getQidianContents = function(){
+        if(document.location.pathname.indexOf('/BookReader/') < 0){
+            return false;
+        }
+        var content = document.getElementById('content');
+        if(!content){
+            return false;
+        }
+        return speech_IO.audio.prepareContents(content.innerText);
+    }
+    speech_IO.audio.getZonghengContents = function(){
+        if(document.location.pathname.indexOf('/chapter/') < 0){
+            return false;
+        }
+        var content = document.getElementById('chapterContent');
+        if(!content){
+            return false;
+        }
+        return speech_IO.audio.prepareContents(content.innerText);
+    }
+    speech_IO.audio.getChuangshiContents = function(){
+        if(document.location.pathname.indexOf('/bk/') < 0){
+            return false;
+        }
+        var content = $('.bookreadercontent');
+        if(!content){
+            return false;
+        }
+        return speech_IO.audio.prepareContents(content.text());
+    }
+    speech_IO.audio.getTiebaContents = function(){
+        if(document.location.pathname.indexOf('/p/') < 0){
+            return false;
+        }
+        var content = $('.d_post_content');
+        if(!content || content.length == 0){
+            return false;
+        }
+
+        var _content = '';
+        content.each(function(ind, item){
+            _content += $(item).text();
+        });
+        return speech_IO.audio.prepareContents(_content);
+    }
+
+
+    if(speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]()){
 
     speech_IO.showControlBar = function(){
     
@@ -162,21 +226,21 @@ if(!window.speechRecognitionInjection){
         })(jQuery);
     }
 
-    speech_IO.audio = {};
+    //speech_IO.audio = {};
 
-    speech_IO.audio.contents = [];
+    //speech_IO.audio.contents = [];
     speech_IO.audio.currentIndex = 0;
     //speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
     //speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid="
     //    + speech_IO.backgroundWindow.getCuid()
     //    + "&lan=zh&ctp=1&pdt=1&tex=";
-    speech_IO.audio.getContents = function(){
-        // TODO
-        //speech_IO.audio.contents = ['这是一个很寂寞的天','下着有些伤心的雨'];
-        //speech_IO.audio.contents = speech_IO.audio.getQidianContents();
-        speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]();
-        return speech_IO.audio.contents;
-    }
+    //speech_IO.audio.getContents = function(){
+    //    // TODO
+    //    //speech_IO.audio.contents = ['这是一个很寂寞的天','下着有些伤心的雨'];
+    //    //speech_IO.audio.contents = speech_IO.audio.getQidianContents();
+    //    speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]();
+    //    return speech_IO.audio.contents;
+    //}
 
     speech_IO.audio.setContents = function(){
         // get contents
@@ -184,7 +248,8 @@ if(!window.speechRecognitionInjection){
 
     speech_IO.audio.play = function(){
         if(speech_IO.audio.contents.length == 0){
-            speech_IO.audio.getContents();
+            return false;
+            //speech_IO.audio.getContents();
         }
 
         if(speech_IO.tts_audio.src == ''){
@@ -224,17 +289,7 @@ if(!window.speechRecognitionInjection){
         }
     }
 
-    speech_IO.audio.getQidianContents = function(){
-        var content = document.getElementById('content');
-        var strArr = content.innerText.split(/[,.!?;，。！？；]/);
-        var res = [];
-        for(i in strArr){
-            if(strArr[i].trim() != ''){
-                res.push(strArr[i]);
-            }
-        }
-        return res;
-    }
+
 
     speech_IO.init = function(callback){
         // init cuid
