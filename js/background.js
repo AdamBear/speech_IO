@@ -77,8 +77,6 @@ function startRecording() {
 }
 
 function speechRecognition(b, callback){
-    // TODO: tip 正在识别
-    window.xb = b;
     var url = "http://vop.baidu.com/server_api";
     var fr = new FileReader();
     window.fr = fr;
@@ -89,7 +87,8 @@ function speechRecognition(b, callback){
             //rate:8000,
             rate:16000,
             channel:1,
-            cuid:'8908bd1e130117887372a35091c48ef6',
+            //cuid:'8908bd1e130117887372a35091c48ef6',
+            cuid:getCuid(),
             //token:'24.f073d9e3db037ede740bbbdfeac86f5e.2592000.1419692380.282335-1615711',
             token:'24.0ad4f7db90cba5cf0615889d92ce6f66.2592000.1420046822.282335-4815863',
             lan:'zh',
@@ -164,6 +163,15 @@ function fillText(s){
     return sendCmd('fillText', {msg:s});
 }
 
+function getCuid(){
+    var cuid = Settings.getValue('cuid');
+    if(!cuid){
+        cuid = gen_cuid();
+        Settings.setValue("cuid", cuid);
+    }   
+    return cuid;
+}
+
 function sendCmd(cmd, obj){
     return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
         return chrome.tabs.getSelected(null, function(tab){
@@ -173,6 +181,21 @@ function sendCmd(cmd, obj){
         });
     });
 }
+
+
+chrome.extension.onMessage.addListener(function(req, sender,sendResponse) {
+    console.log(req);
+    switch(req.method){
+        case 'getCuid':
+            //console.log(req.params.msg);
+            var cuid = getCuid();
+            sendResponse({cuid:cuid});
+            break;
+        default:
+            break;
+    }
+}
+);
 
 
 //}

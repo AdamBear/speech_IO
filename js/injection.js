@@ -166,7 +166,10 @@ if(!window.speechRecognitionInjection){
 
     speech_IO.audio.contents = [];
     speech_IO.audio.currentIndex = 0;
-    speech_IO.audio.urlPrefix = "http://10.211.245.28:8287/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
+    //speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
+    //speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid="
+    //    + speech_IO.backgroundWindow.getCuid()
+    //    + "&lan=zh&ctp=1&pdt=1&tex=";
     speech_IO.audio.getContents = function(){
         // TODO
         //speech_IO.audio.contents = ['这是一个很寂寞的天','下着有些伤心的雨'];
@@ -233,9 +236,20 @@ if(!window.speechRecognitionInjection){
         return res;
     }
 
+    speech_IO.init = function(callback){
+        // init cuid
+        chrome.extension.sendMessage(null, {method:'getCuid'}, function(res){
+            // init audio url prefix
+            speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid=" + res.cuid + "&lan=zh&ctp=1&pdt=1&tex=";
+            return callback();
+        });
+    }
 
-    speech_IO.initDragSupport();
-    speech_IO.showControlBar();
+
+    speech_IO.init(function(){
+        speech_IO.initDragSupport();
+        speech_IO.showControlBar();
+    });
     }
 
     // if qidian, zongheng, tieba , add read button

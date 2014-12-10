@@ -1,5 +1,5 @@
 (function(){
-    var ttsUrlPrefix = "http://10.211.245.28:8287/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
+    var ttsUrlPrefix = "http://tts.baidu.com/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
     var speakListener = function(utterance, options, sendTtsEvent) {
         
         // tts start
