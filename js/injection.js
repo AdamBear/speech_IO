@@ -90,12 +90,35 @@ if(!window.speechRecognitionInjection){
 
     speech_IO.showControlBar = function(){
     
+        var pControlWrapper;
         var pControl;
-        if(pControl = document.getElementById('speech_IO_control')){
+        //if(pControl = document.getElementById('speech_IO_control')){
+        if(pControlWrapper = document.getElementById('speech_IO_control_wrapper')){
             //pControl.innerText = tip;
-            pControl.style.display = 'block';
+            //pControl.style.display = 'block';
+            pControlWrapper.style.display = 'block';
         }
         else{
+            // init control wrapper
+            pControlWrapper = document.createElement('div');
+            pControlWrapper.id = 'speech_IO_control_wrapper';
+            pControlWrapper.style.display = 'block';
+            //pControlWrapper.style.border = '1px solid white';
+            //pControlWrapper.style.borderRadius = '5px';
+            //pControlWrapper.style.backgroundColor = 'black';
+            pControlWrapper.style.width = '150px';
+            //pControlWrapper.style.height = '30px';
+            pControlWrapper.style.color = 'grey';
+            pControlWrapper.style.textAlign = 'center';
+            pControlWrapper.style.position = 'fixed';
+            pControlWrapper.style.top = '200px';
+            pControlWrapper.style.right = '20px';
+            pControlWrapper.style.opacity = '0.8';
+            pControlWrapper.style.zIndex = '9999';
+            //pControlWrapper.style.lineHeight = '50px';
+            pControlWrapper.draggable = 'true';
+            pControlWrapper.style.cursor = 'move';
+
             // init control pannel
             pControl = document.createElement('div');
             pControl.id = 'speech_IO_control';
@@ -108,14 +131,14 @@ if(!window.speechRecognitionInjection){
             pControl.style.height = '30px';
             pControl.style.color = 'grey';
             pControl.style.textAlign = 'center';
-            pControl.style.position = 'fixed';
-            pControl.style.top = '200px';
-            pControl.style.right = '20px';
-            pControl.style.opacity = '0.8';
-            pControl.style.zIndex = '9999';
+            //pControl.style.position = 'fixed';
+            //pControl.style.top = '200px';
+            //pControl.style.right = '20px';
+            //pControl.style.opacity = '0.8';
+            //pControl.style.zIndex = '9999';
             //pControl.style.lineHeight = '50px';
-            pControl.draggable = 'true';
-            pControl.style.cursor = 'move';
+            //pControl.draggable = 'true';
+            //pControl.style.cursor = 'move';
 
             // init audio element
             var tts_audio = document.createElement('audio');
@@ -179,6 +202,22 @@ if(!window.speechRecognitionInjection){
             nextBtn.style.lineHeight = '30px';
             nextBtn.style.float = 'left';
 
+
+            var pTip = document.createElement('p');
+            pTip.id = 'speech_IO_tip';
+            pTip.innerText = '...';
+            pTip.style.display = 'none';
+            pTip.style.border = '1px solid white';
+            pTip.style.borderRadius = '5px';
+            pTip.style.backgroundColor = 'black';
+            pTip.style.width = '150px';
+            pTip.style.height = '50px';
+            pTip.style.color = 'grey';
+            pTip.style.textAlign = 'center';
+            //pTip.style.opacity = '0.8';
+            //pTip.style.zIndex = '9999';
+            pTip.style.lineHeight = '50px';
+
             tts_audio.addEventListener('ended', function(){
                 speech_IO.audio.next();
             });
@@ -217,11 +256,15 @@ if(!window.speechRecognitionInjection){
             pControl.appendChild(recordBtn);
             pControl.appendChild(playBtn);
             pControl.appendChild(nextBtn);
-            document.body.insertBefore(pControl, document.body.firstChild);
+            pControlWrapper.appendChild(pControl);
+            pControlWrapper.appendChild(pTip);
+            //document.body.insertBefore(pControl, document.body.firstChild);
+            document.body.insertBefore(pControlWrapper, document.body.firstChild);
 
             speech_IO.tts_audio = tts_audio;
 
-            $(pControl).drags();
+            //$(pControl).drags();
+            $(pControlWrapper).drags();
         }
     }
 
