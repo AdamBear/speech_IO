@@ -6,7 +6,17 @@ if(!window.speechRecognitionInjection){
     if(!window.speech_IO){
         window.speech_IO = {};
         speech_IO.audio = {};
+        speech_IO.recorder = {};
         speech_IO.audio.contents = [];
+    }
+
+    speech_IO.recorder.start = function(){
+        console.log('start record');
+        // post message, start
+    }
+    speech_IO.recorder.stop = function(){
+        console.log('stop record');
+        // post message, stop
     }
 
     speech_IO.supportSites = {
@@ -76,7 +86,7 @@ if(!window.speechRecognitionInjection){
     }
 
 
-    if(speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]()){
+//    if(speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]()){
 
     speech_IO.showControlBar = function(){
     
@@ -106,18 +116,39 @@ if(!window.speechRecognitionInjection){
             //pControl.style.lineHeight = '50px';
             pControl.draggable = 'true';
             pControl.style.cursor = 'move';
+
             // init audio element
             var tts_audio = document.createElement('audio');
             tts_audio.id = 'tts_audio';
             tts_audio.style.display = 'none';
+
+            // init record btn
+            var recordBtn = document.createElement('button');
+            recordBtn.id = 'speech_IO_record_btn';
+            recordBtn.innerText = '◉';
+            //recordBtn.innerText = '◼︎';
+            recordBtn.style.display = 'inline-block';
+            recordBtn.style.borderTopLeftRadius = '5px';
+            recordBtn.style.borderBottomLeftRadius = '5px';
+            recordBtn.style.borderStyle = 'none';
+            recordBtn.style.borderRightWidth = '1px';
+            recordBtn.style.borderRightColor = '#999';
+            recordBtn.style.borderRightStyle = 'solid';
+            recordBtn.style.backgroundColor = 'black';
+            recordBtn.style.width = '50px';
+            recordBtn.style.height = '30px';
+            recordBtn.style.color = 'red';
+            recordBtn.style.textAlign = 'center';
+            recordBtn.style.lineHeight = '30px';
+            recordBtn.style.float = 'left';
             
             // init play btn
             var playBtn = document.createElement('button');
             playBtn.id = 'speech_IO_play_btn';
             playBtn.innerText = '>';
             playBtn.style.display = 'inline-block';
-            playBtn.style.borderTopLeftRadius = '5px';
-            playBtn.style.borderBottomLeftRadius = '5px';
+            //playBtn.style.borderTopLeftRadius = '5px';
+            //playBtn.style.borderBottomLeftRadius = '5px';
             playBtn.style.borderStyle = 'none';
             playBtn.style.borderRightWidth = '1px';
             playBtn.style.borderRightColor = '#999';
@@ -134,12 +165,12 @@ if(!window.speechRecognitionInjection){
             nextBtn.id = 'speech_IO_next_btn';
             nextBtn.innerText = '>>';
             nextBtn.style.display = 'inline-block';
-            //nextBtn.style.borderTopLeftRadius = '5px';
-            //nextBtn.style.borderBottomLeftRadius = '5px';
+            nextBtn.style.borderTopRightRadius = '5px';
+            nextBtn.style.borderBottomRightRadius = '5px';
             nextBtn.style.borderStyle = 'none';
-            nextBtn.style.borderRightWidth = '1px';
-            nextBtn.style.borderRightColor = '#999';
-            nextBtn.style.borderRightStyle = 'solid';
+            //nextBtn.style.borderRightWidth = '1px';
+            //nextBtn.style.borderRightColor = '#999';
+            //nextBtn.style.borderRightStyle = 'solid';
             nextBtn.style.backgroundColor = 'black';
             nextBtn.style.width = '50px';
             nextBtn.style.height = '30px';
@@ -152,6 +183,18 @@ if(!window.speechRecognitionInjection){
                 speech_IO.audio.next();
             });
 
+            recordBtn.addEventListener('click', function(){
+                if(recordBtn.innerText == '◉'){
+                    // play
+                    speech_IO.recorder.start();
+                    recordBtn.innerText = '◼︎';
+                }
+                else{
+                    // pause
+                    speech_IO.recorder.stop();
+                    recordBtn.innerText = '◉';
+                }
+            });
             playBtn.addEventListener('click', function(){
                 if(playBtn.innerText == '>'){
                     // play
@@ -171,6 +214,7 @@ if(!window.speechRecognitionInjection){
             });
 
             pControl.appendChild(tts_audio);
+            pControl.appendChild(recordBtn);
             pControl.appendChild(playBtn);
             pControl.appendChild(nextBtn);
             document.body.insertBefore(pControl, document.body.firstChild);
@@ -296,16 +340,31 @@ if(!window.speechRecognitionInjection){
         chrome.extension.sendMessage(null, {method:'getCuid'}, function(res){
             // init audio url prefix
             speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid=" + res.cuid + "&lan=zh&ctp=1&pdt=1&tex=";
+            // init control bar
+            speech_IO.initDragSupport();
+            speech_IO.showControlBar();
+
+            // check if init play btn
+            if(!speech_IO.audio[speech_IO.supportSites[document.location.hostname]] 
+                || !( speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]())){
+            //if(!speech_IO.audio.contents){
+                document.getElementById('speech_IO_play_btn').style.display = 'none';
+                document.getElementById('speech_IO_next_btn').style.display = 'none';
+                var record_btn = document.getElementById('speech_IO_record_btn');
+                record_btn.style.width = '150px';
+                record_btn.style.borderStyle = 'none';
+                record_btn.style.borderTopRightRadius = '5px';
+                record_btn.style.borderBottomRightRadius = '5px';
+            }
+
             return callback();
         });
     }
 
 
     speech_IO.init(function(){
-        speech_IO.initDragSupport();
-        speech_IO.showControlBar();
     });
-    }
+//    }
 
     // if qidian, zongheng, tieba , add read button
 }
