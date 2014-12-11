@@ -12,12 +12,38 @@ if(!window.speechRecognitionInjection){
 
     speech_IO.recorder.start = function(){
         console.log('start record');
+        speech_IO.recorder.showTip('正在识别...');
         // post message, start
     }
+
     speech_IO.recorder.stop = function(){
         console.log('stop record');
         // post message, stop
+        speech_IO.recorder.closeTip(2000, 'err');
     }
+
+    speech_IO.recorder.showTip = function(tip){
+        console.log(tip);
+        var pTip = document.getElementById('speech_IO_tip');
+        pTip.innerText = tip;
+        pTip.style.display = 'block';
+    }
+
+    speech_IO.recorder.closeTip = function(timeout, msg){
+        console.log('close tip');
+        var pTip = document.getElementById('speech_IO_tip');
+        if(timeout == 0){
+            pTip.style.display = 'none';
+        }
+        else{
+            pTip.innerText = msg;
+            setTimeout(function(){
+                pTip.style.display = 'none';
+            }, timeout);
+
+        }
+    }
+
 
     speech_IO.supportSites = {
         'read.qidian.com':'getQidianContents',
@@ -86,10 +112,10 @@ if(!window.speechRecognitionInjection){
     }
 
 
-//    if(speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]()){
+    //    if(speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]()){
 
     speech_IO.showControlBar = function(){
-    
+
         var pControlWrapper;
         var pControl;
         //if(pControl = document.getElementById('speech_IO_control')){
@@ -164,7 +190,7 @@ if(!window.speechRecognitionInjection){
             recordBtn.style.textAlign = 'center';
             recordBtn.style.lineHeight = '30px';
             recordBtn.style.float = 'left';
-            
+
             // init play btn
             var playBtn = document.createElement('button');
             playBtn.id = 'speech_IO_play_btn';
@@ -390,7 +416,7 @@ if(!window.speechRecognitionInjection){
             // check if init play btn
             if(!speech_IO.audio[speech_IO.supportSites[document.location.hostname]] 
                 || !( speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]())){
-            //if(!speech_IO.audio.contents){
+                //if(!speech_IO.audio.contents){
                 document.getElementById('speech_IO_play_btn').style.display = 'none';
                 document.getElementById('speech_IO_next_btn').style.display = 'none';
                 var record_btn = document.getElementById('speech_IO_record_btn');
@@ -401,14 +427,14 @@ if(!window.speechRecognitionInjection){
             }
 
             return callback();
+            });
+        }
+
+
+        speech_IO.init(function(){
         });
+        //    }
+
+        // if qidian, zongheng, tieba , add read button
     }
-
-
-    speech_IO.init(function(){
-    });
-//    }
-
-    // if qidian, zongheng, tieba , add read button
-}
-window.speechRecognitionInjection = true;
+    window.speechRecognitionInjection = true;
