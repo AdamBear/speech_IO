@@ -2,34 +2,18 @@
 //date      :   2012-08-18
 
 function genericOnClick(info, tab){
-    console.log(info);
-    console.log(tab);
     // set tip recording
     sendCmd('showTip', {msg:'正在识别中...'});
     startRecording();
     return;
 }
 
-var showResult = function(string){
-    chrome.tabs.sendRequest(null, {'method':'getContextMenus', 'string':string}, function(){});
-}
-//var id = chrome.contextMenus.create({"title":'baidu_speech', "contexts":['editable'], "onclick":genericOnClick});
-var id = chrome.contextMenus.create({
-    title:'语音识别', 
-    id: 'recog_menu_btn',
-    contexts:['editable'], 
-    onclick:genericOnClick
-});
-
-
-var onFail = function(e) {
+function onFail(e) {
     console.log('Rejected!', e);
 };
 
-var audio_context = null;
-var audio_media_stream_source = null;
 
-var onSuccess = function(s) {
+function onSuccess(s) {
     if(audio_context == null){
         audio_context = new webkitAudioContext();
         audio_media_stream_source = audio_context.createMediaStreamSource(s);
@@ -37,10 +21,6 @@ var onSuccess = function(s) {
     recorder = new Recorder(audio_media_stream_source);
     recorder.onStop = function(){
         recorder.exportWAV(function(s) {
-            //console.log(audio);
-            audio.src = window.URL.createObjectURL(s);
-            //audio.play();
-            //Recorder.forceDownload(s, 'output_' + parseInt(new Date().getTime()/1000) + '.wav');
             speechRecognition(s,function(err, text){
                 if(!err){
                     sendCmd('closeTip', {});
@@ -55,31 +35,16 @@ var onSuccess = function(s) {
         });
     }
     recorder.record();
-
-    // audio loopback
-    // mediaStreamSource.connect(context.destination);
 }
 
-window.URL = window.URL || window.webkitURL;
-navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
-var recorder;
-var audio = document.querySelector('audio');
-
-firstTimeCheck();
 
 function startRecording() {
-    if (navigator.getUserMedia) {
-        navigator.getUserMedia({audio: true}, onSuccess, onFail);
-    } else {
-        console.log('navigator.getUserMedia not present');
-    }
+    navigator.getUserMedia({audio: true}, onSuccess, onFail);
 }
 
 function speechRecognition(b, callback){
     var url = "http://vop.baidu.com/server_api";
     var fr = new FileReader();
-    window.fr = fr;
     fr.readAsDataURL(b);
     fr.onload = function(){
         var params = {
@@ -173,12 +138,63 @@ function getCuid(){
 }
 
 function sendCmd(cmd, obj){
-    return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
+    //return chrome.tabs.executeScript(null, {file:'js/content.js', allFrames:true}, function(){
         return chrome.tabs.getSelected(null, function(tab){
             return chrome.tabs.sendMessage(tab.id, {'method':cmd, params:obj}, function(res){
 
             });
         });
+    //});
+}
+
+
+function startRecordCmd(){
+    navigator.getUserMedia({audio: true}, function(s){
+        if(audio_context == null){
+            audio_context = new webkitAudioContext();
+            audio_media_stream_source = audio_context.createMediaStreamSource(s);
+        }
+        recorder = new Recorder(audio_media_stream_source);
+        recorder.onStop = function(){
+            recorder.exportWAV(function(s) {
+                speechRecognition(s,function(err, text){
+                    if(!err){
+                        sendCmd('closeTip', {});
+                        // call cmd api
+                        return getNlpCmd(text, function(data){
+                            return openSearchPage(data.results[0].object.website, data.results[0].object.keywords);
+                        });
+
+                        //return fillText(text);
+                    }
+                    else{
+                        sendCmd('closeTip', {timeout:2000, msg:'未能识别，请重试'});
+                    }
+                });
+                // post to server
+                window.xb = s;
+            });
+        }
+        recorder.record();
+
+    }, onFail);
+}
+
+function getNlpCmd(str, callback){
+    var urlPrefix = "http://61.135.162.247:8088/?utf8=1&appid=0&uid=opp-test&from_app=hciapp-webdemo&server=offline&param=%7B%22server%22%3A%22custom_parser%22%2C%22domains%22%3A%5B%22website-dl%22%5D%7D&query=";
+
+    var url = urlPrefix + str;
+
+    $.getJson(url, function(err, data){
+        console.log(data);
+        if(err){
+            return false;
+        }
+
+        // 
+        if(data.results.length > 0 && typeof callback == 'function'){
+            return callback(data);
+        }
     });
 }
 
@@ -191,11 +207,32 @@ chrome.extension.onMessage.addListener(function(req, sender,sendResponse) {
             var cuid = getCuid();
             sendResponse({cuid:cuid});
             break;
+        case 'startRecordCmd':
+            //console.log(req.params.msg);
+            startRecordCmd();
+            break;
         default:
             break;
     }
 }
 );
 
+var id = chrome.contextMenus.create({
+    title:'语音识别', 
+    id: 'recog_menu_btn',
+    contexts:['editable'], 
+    onclick:genericOnClick
+});
+
+var audio_context = null;
+var audio_media_stream_source = null;
+
+window.URL = window.URL || window.webkitURL;
+navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+var recorder;
+//var audio = document.querySelector('audio');
+
+firstTimeCheck();
 
 //}

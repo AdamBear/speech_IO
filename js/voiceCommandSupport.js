@@ -37,6 +37,6 @@ function openSearchPage(type, word){
 
 }
 
-setTimeout(function(){
-openSearchPage('baidu', '内存条');
-}, 2000);
+//setTimeout(function(){
+//openSearchPage('baidu', '内存条');
+//}, 2000);

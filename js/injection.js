@@ -13,6 +13,8 @@ if(!window.speechRecognitionInjection){
     speech_IO.recorder.start = function(){
         console.log('start record');
         speech_IO.recorder.showTip('正在识别...');
+        chrome.extension.sendMessage(null, {method:'startRecordCmd'});
+
         // post message, start
     }
 
@@ -343,21 +345,6 @@ if(!window.speechRecognitionInjection){
 
     //speech_IO.audio.contents = [];
     speech_IO.audio.currentIndex = 0;
-    //speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid=baidutest&lan=zh&ctp=1&pdt=1&tex=";
-    //speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid="
-    //    + speech_IO.backgroundWindow.getCuid()
-    //    + "&lan=zh&ctp=1&pdt=1&tex=";
-    //speech_IO.audio.getContents = function(){
-    //    // TODO
-    //    //speech_IO.audio.contents = ['这是一个很寂寞的天','下着有些伤心的雨'];
-    //    //speech_IO.audio.contents = speech_IO.audio.getQidianContents();
-    //    speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]();
-    //    return speech_IO.audio.contents;
-    //}
-
-    speech_IO.audio.setContents = function(){
-        // get contents
-    }
 
     speech_IO.audio.play = function(){
         if(speech_IO.audio.contents.length == 0){
@@ -404,6 +391,8 @@ if(!window.speechRecognitionInjection){
 
 
 
+
+
     speech_IO.init = function(callback){
         // init cuid
         chrome.extension.sendMessage(null, {method:'getCuid'}, function(res){
@@ -427,14 +416,32 @@ if(!window.speechRecognitionInjection){
             }
 
             return callback();
-            });
-        }
-
-
-        speech_IO.init(function(){
         });
-        //    }
-
-        // if qidian, zongheng, tieba , add read button
     }
-    window.speechRecognitionInjection = true;
+
+    // add message listener
+    chrome.extension.onMessage.addListener(function (req, sender,sendResponse) {
+
+        console.log(req);
+        switch(req.method){
+            case 'fillText':
+                //console.log(req.params.msg);
+                document.activeElement.value = req.params.msg;
+                break;
+            case 'showTip':
+                speech_IO.recorder.showTip(req.params.msg);
+                break;
+            case 'closeTip':
+                speech_IO.recorder.closeTip(req.params.timeout, req.params.msg);
+                break;
+            default:
+                break;
+        }
+    });
+
+
+    speech_IO.init(function(){
+    });
+    //    }
+}
+window.speechRecognitionInjection = true;
