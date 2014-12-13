@@ -7,7 +7,8 @@ function openSearchPage(type, word){
     var urls = {
         baidu:'http://www.baidu.com/s?ie=UTF-8&wd=',
         taobao:'http://s.taobao.com/search?q=',
-        jingdong:'http://search.jd.com/Search?enc=utf-8&keyword='
+        jd:'http://search.jd.com/Search?enc=utf-8&keyword=',
+        tmall:'http://list.tmall.com/search_product.htm?type=p&from=..pc_1_opensearch&q='
     };
 
     var fromParam = 'ssssfrom=baidu_speech_ext';
@@ -18,7 +19,7 @@ function openSearchPage(type, word){
         for (var i in tabs) { // check if Options page is open already
             if (tabs.hasOwnProperty(i)) {
                 var tab = tabs[i];
-                if (tab.url.indexOf(fromParam) > 0) {
+                if (tab.url.indexOf(urls[type]) >= 0 && tab.url.indexOf(fromParam) > 0) {
                     chrome.tabs.update(tab.id, { 
                         selected:true ,
                         url:url
