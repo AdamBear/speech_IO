@@ -34,7 +34,7 @@ $(document).ready(function(){
     });
     $('#about_page').click(function(){
         // open about page
-        alert("浏览器语音输入输出扩展\n由百度语音(http://yuyin.baidu.com)提供服务");
+        return bg.openAboutPage();
     });
 
     checkSettings();

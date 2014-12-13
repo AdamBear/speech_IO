@@ -126,6 +126,18 @@ function openOptionPage(){
 
 }
 
+function openAboutPage(){
+    var url = "about.html";
+    var fullUrl = chrome.extension.getURL(url);
+    chrome.tabs.getSelected(null, function (tab) { // open a new tab next to currently selected tab
+        chrome.tabs.create({
+            url:url,
+            index:tab.index + 1
+        });
+    });
+
+}
+
 function fillText(s){
     return sendCmd('fillText', {msg:s});
 }
