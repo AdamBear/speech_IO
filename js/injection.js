@@ -2,10 +2,11 @@ if(!window.speechRecognitionInjection){
     //console.log(document.location.href);
     //var speech_IO_href = document.location.href;
     // show control bar
-    
+    //console.log($('#content'));
     if(!window.speech_IO){
         window.speech_IO = {};
         speech_IO.audio = {};
+        speech_IO.audio.contentElement = null;
         speech_IO.recorder = {};
         speech_IO.audio.contents = [];
     }
@@ -73,7 +74,7 @@ if(!window.speechRecognitionInjection){
         var res = [];
         for(i in strArr){
             if(strArr[i].trim() != ''){
-                res.push(strArr[i]);
+                res.push(strArr[i].trim());
             }
         }
         return res;
@@ -88,6 +89,8 @@ if(!window.speechRecognitionInjection){
         if(!content){
             return false;
         }
+        speech_IO.audio.contentElement = content;
+        
         return speech_IO.audio.prepareContents(content.innerText);
     }
     speech_IO.audio.getZonghengContents = function(){
@@ -98,6 +101,7 @@ if(!window.speechRecognitionInjection){
         if(!content){
             return false;
         }
+        speech_IO.audio.contentElement = content;
         return speech_IO.audio.prepareContents(content.innerText);
     }
     speech_IO.audio.getChuangshiContents = function(){
@@ -108,6 +112,7 @@ if(!window.speechRecognitionInjection){
         if(!content){
             return false;
         }
+        speech_IO.audio.contentElement = content;
         return speech_IO.audio.prepareContents(content.text());
     }
     speech_IO.audio.getTiebaContents = function(){
@@ -118,7 +123,7 @@ if(!window.speechRecognitionInjection){
         if(!content || content.length == 0){
             return false;
         }
-
+        speech_IO.audio.contentElement = document.getElementById('j_p_postlist');
         var _content = '';
         content.each(function(ind, item){
             _content += $(item).text();
@@ -368,7 +373,8 @@ if(!window.speechRecognitionInjection){
 
         if(speech_IO.tts_audio.src == ''){
             var str = speech_IO.audio.contents[speech_IO.audio.currentIndex];
-
+            console.log(str);
+            speech_IO.audio.showHighLight(null, str);
             speech_IO.tts_audio.src = speech_IO.audio.urlPrefix + encodeURIComponent(str);
             speech_IO.tts_audio.play();
         }
@@ -395,12 +401,36 @@ if(!window.speechRecognitionInjection){
     }
 
     speech_IO.audio.next = function(){
+        var curr_str = speech_IO.audio.contents[speech_IO.audio.currentIndex];
         speech_IO.audio.currentIndex ++;
+        var next_str = speech_IO.audio.contents[speech_IO.audio.currentIndex];
+        
         if(speech_IO.audio.currentIndex < speech_IO.audio.contents.length){
+            speech_IO.audio.showHighLight(curr_str, next_str);
             var str = speech_IO.audio.contents[speech_IO.audio.currentIndex];
             speech_IO.tts_audio.src = speech_IO.audio.urlPrefix + encodeURIComponent(str);
             speech_IO.tts_audio.play();
         }
+    }
+    
+    speech_IO.audio.showHighLight = function(curr_str, next_str){
+        if(!curr_str){
+            // first str
+            var replaced_str = '<span style="background-color:yellow">' + next_str + '</span>';
+            //document.body.innerHTML = document.body.innerHTML.replace(s, replaced_str);
+            speech_IO.audio.contentElement.innerHTML = speech_IO.audio.contentElement.innerHTML.replace(next_str, replaced_str);
+            return;
+        }
+        
+        if(!next_str){
+           return;
+        }
+        
+        var curr_replaced_str = '<span style="background-color:yellow">' + curr_str + '</span>';
+        var next_replaced_str = '<span style="background-color:yellow">' + next_str + '</span>';
+        //document.body.innerHTML = document.body.innerHTML.replace(s, replaced_str);
+        speech_IO.audio.contentElement.innerHTML = speech_IO.audio.contentElement.innerHTML.replace(curr_replaced_str, curr_str).replace(next_str, next_replaced_str);
+        return;
     }
 
 
