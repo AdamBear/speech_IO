@@ -3,7 +3,7 @@
 
 function genericOnClick(info, tab){
     // set tip recording
-    sendCmd('showTip', {msg:'正在识别中...'});
+    sendCmd('showTip', {msg:'录音中...'});
     startRecording();
     return;
 }
@@ -20,6 +20,7 @@ function onSuccess(s) {
     }
     recorder = new Recorder(audio_media_stream_source);
     recorder.onStop = function(){
+        sendCmd('showTip', {msg:'识别中...'});
         recorder.exportWAV(function(s) {
             speechRecognition(s,function(err, text){
                 if(!err){
@@ -75,6 +76,7 @@ function speechRecognition(b, callback){
                     var recogedtext = '';
                     if(d.err_no == 0){
                         recogedtext = d.result[0];
+                        recogedtext = recogedtext.replace(/[,，]$/gi, '');
                         return callback(0, recogedtext);
                     }
                     else{
@@ -156,6 +158,7 @@ function startRecordCmd(){
         }
         recorder = new Recorder(audio_media_stream_source);
         recorder.onStop = function(){
+            sendCmd('showTip', {msg:'识别中...'});
             recorder.exportWAV(function(s) {
                 speechRecognition(s,function(err, text){
                     if(!err){
@@ -192,6 +195,26 @@ function getNlpCmd(str, callback){
     });
 }
 
+function getControlBarStatus(){
+    var st = Settings.getValue('show_control');
+    if(st == 'false'){
+        return false;
+    }
+    else{
+        Settings.setValue('show_control', 'true');
+        return true;
+    }
+
+}
+function toggleControlBar(type){
+    chrome.tabs.getAllInWindow(null, function (tabs) {
+        for (var i in tabs) { // check if Options page is open already
+            var tab = tabs[i];
+            chrome.tabs.sendMessage(tab.id, {method:'toggleControlBar', params:{type:type}}); // select the tab
+        }
+    });
+}
+
 
 chrome.extension.onMessage.addListener(function(req, sender,sendResponse) {
     console.log(req);
@@ -204,6 +227,10 @@ chrome.extension.onMessage.addListener(function(req, sender,sendResponse) {
         case 'startRecordCmd':
             //console.log(req.params.msg);
             startRecordCmd();
+            break;
+        case 'getControlBarStatus':
+            var st = getControlBarStatus();
+            sendResponse({status:st});
             break;
         default:
             break;

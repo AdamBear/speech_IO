@@ -12,7 +12,7 @@ if(!window.speechRecognitionInjection){
 
     speech_IO.recorder.start = function(){
         console.log('start record');
-        speech_IO.recorder.showTip('正在识别...');
+        speech_IO.recorder.showTip('录音中...');
         chrome.extension.sendMessage(null, {method:'startRecordCmd'});
 
         // post message, start
@@ -45,6 +45,19 @@ if(!window.speechRecognitionInjection){
 
         }
     }
+
+    speech_IO.recorder.toggleControlBar = function(type){
+        var pControl = document.getElementById('speech_IO_control');
+        if(type){
+        //pTip.innerText = tip;
+            pControl.style.display = 'block';
+        }
+        else{
+            pControl.style.display = 'none';
+        }
+    }
+
+
 
 
     speech_IO.supportSites = {
@@ -151,7 +164,8 @@ if(!window.speechRecognitionInjection){
             pControl = document.createElement('div');
             pControl.id = 'speech_IO_control';
             //pControl.innerText = tip;
-            pControl.style.display = 'block';
+            //pControl.style.display = 'block';
+            pControl.style.display = 'none';
             pControl.style.border = '1px solid white';
             pControl.style.borderRadius = '5px';
             pControl.style.backgroundColor = 'black';
@@ -396,26 +410,31 @@ if(!window.speechRecognitionInjection){
     speech_IO.init = function(callback){
         // init cuid
         chrome.extension.sendMessage(null, {method:'getCuid'}, function(res){
+
             // init audio url prefix
             speech_IO.audio.urlPrefix = "http://tts.baidu.com/text2audio?cuid=" + res.cuid + "&lan=zh&ctp=1&pdt=1&tex=";
             // init control bar
             speech_IO.initDragSupport();
             speech_IO.showControlBar();
 
-            // check if init play btn
-            if(!speech_IO.audio[speech_IO.supportSites[document.location.hostname]] 
-                || !( speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]())){
-                //if(!speech_IO.audio.contents){
-                document.getElementById('speech_IO_play_btn').style.display = 'none';
-                document.getElementById('speech_IO_next_btn').style.display = 'none';
-                var record_btn = document.getElementById('speech_IO_record_btn');
-                record_btn.style.width = '150px';
-                record_btn.style.borderStyle = 'none';
-                record_btn.style.borderTopRightRadius = '5px';
-                record_btn.style.borderBottomRightRadius = '5px';
-            }
+            chrome.extension.sendMessage(null, {method:'getControlBarStatus'}, function(res){
 
-            return callback();
+                // check if init play btn
+                if(!speech_IO.audio[speech_IO.supportSites[document.location.hostname]] 
+                    || !( speech_IO.audio.contents = speech_IO.audio[speech_IO.supportSites[document.location.hostname]]())){
+                    //if(!speech_IO.audio.contents){
+                    document.getElementById('speech_IO_play_btn').style.display = 'none';
+                    document.getElementById('speech_IO_next_btn').style.display = 'none';
+                    var record_btn = document.getElementById('speech_IO_record_btn');
+                    record_btn.style.width = '150px';
+                    record_btn.style.borderStyle = 'none';
+                    record_btn.style.borderTopRightRadius = '5px';
+                    record_btn.style.borderBottomRightRadius = '5px';
+                }
+                speech_IO.recorder.toggleControlBar(res.status);
+
+                return callback();
+            });
         });
     }
 
@@ -426,13 +445,21 @@ if(!window.speechRecognitionInjection){
         switch(req.method){
             case 'fillText':
                 //console.log(req.params.msg);
-                document.activeElement.value = req.params.msg;
+                try{
+                    document.activeElement.innerText = req.params.msg;
+                }
+                catch(e){
+                    document.activeElement.value = req.params.msg;
+                }
                 break;
             case 'showTip':
                 speech_IO.recorder.showTip(req.params.msg);
                 break;
             case 'closeTip':
                 speech_IO.recorder.closeTip(req.params.timeout, req.params.msg);
+                break;
+            case 'toggleControlBar':
+                speech_IO.recorder.toggleControlBar(req.params.type);
                 break;
             default:
                 break;
