@@ -10,11 +10,22 @@ function openSearchPage(type, word){
         jd:'http://search.jd.com/Search?enc=utf-8&keyword=',
         tmall:'http://list.tmall.com/search_product.htm?type=p&from=..pc_1_opensearch&q='
     };
+    
+    var noKeywordUrls = {
+        baidu:'http://www.baidu.com/',
+        taobao:'http://www.taobao.com/',
+        jd:'http://www.jd.com/',
+        tmall:'http://www.tmall.com/'
+    };
 
     var fromParam = 'ssssfrom=baidu_speech_ext';
-
-    var url = urls[type] + word + '&' + fromParam;
-
+    var url = '';
+    if(word){
+        url = urls[type] + word + '&' + fromParam;
+    }
+    else{
+        url = noKeywordUrls[type] + '?' +  fromParam;
+    }
     chrome.tabs.getAllInWindow(null, function (tabs) {
         for (var i in tabs) { // check if Options page is open already
             if (tabs.hasOwnProperty(i)) {
