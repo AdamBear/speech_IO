@@ -28,8 +28,14 @@ if(!window.speechRecognitionInjection){
     speech_IO.recorder.showTip = function(tip){
         console.log(tip);
         var pTip = document.getElementById('speech_IO_tip');
-        pTip.innerText = tip;
+        //pTip.innerText = tip;
+        document.getElementById('speech_IO_tip_line').innerText = tip;
         pTip.style.display = 'block';
+    }
+
+    speech_IO.recorder.updateSoundWave = function(vol){
+        var w = vol * 10;
+        document.getElementById('speech_IO_vol').style.width = w + 'px';
     }
 
     speech_IO.recorder.closeTip = function(timeout, msg){
@@ -39,7 +45,7 @@ if(!window.speechRecognitionInjection){
             pTip.style.display = 'none';
         }
         else{
-            pTip.innerText = msg;
+            document.getElementById('speech_IO_tip_line').innerText = msg;
             setTimeout(function(){
                 pTip.style.display = 'none';
             }, timeout);
@@ -195,8 +201,12 @@ if(!window.speechRecognitionInjection){
             // init record btn
             var recordBtn = document.createElement('button');
             recordBtn.id = 'speech_IO_record_btn';
-            recordBtn.innerText = '◉';
+            recordBtn.style.backgroundImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAAsTAAALEwEAmpwYAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAACe0lEQVQ4EX2UT04qQRDGaxBIACFEA7IgJC7YeRWXgol4CU4BB+AAsGRLOAF7dmwgwMaFfxI2GFFR+vWvfDWZUd+rpGdqqr7vq+qe7g6SyeRBRAI/QguCQD4+PqRUKsnj42MYxymXy/L09CSeJ865WI6PxPcIYp+fn0pErNVqyXg81nF7e6sFEAUD9ofRoR8uOk5PTyntbm5u3P39vW/ky/CJkQMT5Zgf69AqFgoFLdxsNuXs7Eze39914F9fX2vOMMbRoH8kzbE3gMOBZRXJ5XL6jpKy2azGfM+/TjnWIUjIicRX2IRV4e/DYuCihQwTCpKkKmJ+PTT/G8FiYMB+7zQUpPLR0ZG8vr7KYrGwgv98gwELx7oGHAqenJzI29ubtNttWa1W0u125eXl5YcgMXJgwMKBa6aCtJ1OpzXGnzw/P9cRrWwE9p/l2Y8YXDQwXSxbPwJsEWy/3+uU9CPy2G63Ok3D8I6uYzhlBLD5fK6iFxcX0ul0ZLlcSiqV0oHPdMlRGCxmXP3wf+vgCS6Tyeju90E3nU59Uef6/b6r1Wqu1+vpwB8MBpoDA5YTAxcNTgtbRAX58OunIH9+3cPDgxLX67WbTCY68DFyYBCEAzcmaAG/lq5SqSiw0WioyGazUREe+IiTQwwsHBNDRzvEMVGA1WpVCfj+T2pHXAzFYjGMGyYqpjqeFJpvQs/v3d2dXF5eSr1el+fn5/CIXV1dST6f140/Go0Uyz6MmVfV64tKftfrT/AANxwOdap+3+mbh/nkwPCT4MS6NHWP1052u52GZrOZXl3+5kYrvEk9WchhYKN7mFhAhzhmnA6uKKb6Pzs+PtajaTeTYf8Ams63vnNDrBUAAAAASUVORK5CYII=)";
+            //recordBtn.innerText = '◉';
             //recordBtn.innerText = '◼︎';
+            recordBtn.style.backgroundPosition = 'center center';
+            recordBtn.style.backgroundRepeat = 'no-repeat';
+            recordBtn.style.backgroundSize = '20px 20px';
             recordBtn.style.display = 'inline-block';
             recordBtn.style.borderTopLeftRadius = '5px';
             recordBtn.style.borderBottomLeftRadius = '5px';
@@ -250,9 +260,9 @@ if(!window.speechRecognitionInjection){
             nextBtn.style.float = 'left';
 
 
-            var pTip = document.createElement('p');
+            var pTip = document.createElement('div');
             pTip.id = 'speech_IO_tip';
-            pTip.innerText = '...';
+            //pTip.innerText = '...';
             pTip.style.display = 'none';
             pTip.style.border = '1px solid white';
             pTip.style.borderRadius = '5px';
@@ -263,23 +273,52 @@ if(!window.speechRecognitionInjection){
             pTip.style.textAlign = 'center';
             //pTip.style.opacity = '0.8';
             //pTip.style.zIndex = '9999';
-            pTip.style.lineHeight = '50px';
+            pTip.style.lineHeight = '40px';
+            pTip.style.overflow = 'hidden';
+
+            var tipLine = document.createElement('p');
+            tipLine.id = 'speech_IO_tip_line';
+            tipLine.innerText = '...';
+            //tipLine.style.border = '1px solid white';
+            //tipLine.style.borderRadius = '5px';
+            //tipLine.style.backgroundColor = 'black';
+            tipLine.style.width = '150px';
+            tipLine.style.height = '40px';
+            tipLine.style.color = 'grey';
+            tipLine.style.textAlign = 'center';
+            //tipLine.style.opacity = '0.8';
+            //tipLine.style.zIndex = '9999';
+            tipLine.style.lineHeight = '40px';
+
+            var volBar = document.createElement('div');
+            volBar.id = 'speech_IO_vol';
+            volBar.style.display = 'block';
+            volBar.style.backgroundColor = 'green';
+            volBar.style.width = '150px';
+            volBar.style.height = '10px';
+
+            //volBar.style.color = 'grey';
+            //volBar.style.textAlign = 'center';
+            //volBar.style.opacity = '0.8';
+            //volBar.style.zIndex = '9999';
+            //volBar.style.lineHeight = '40px';
+            
 
             tts_audio.addEventListener('ended', function(){
                 speech_IO.audio.next();
             });
 
             recordBtn.addEventListener('click', function(){
-                if(recordBtn.innerText == '◉'){
+                //if(recordBtn.innerText == '◉'){
                     // play
                     speech_IO.recorder.start();
-                    recordBtn.innerText = '◼︎';
-                }
-                else{
+                    //recordBtn.innerText = '◼︎';
+                //}
+                //else{
                     // pause
-                    speech_IO.recorder.stop();
-                    recordBtn.innerText = '◉';
-                }
+                //    speech_IO.recorder.stop();
+                //    recordBtn.innerText = '◉';
+                //}
             });
             playBtn.addEventListener('click', function(){
                 if(playBtn.innerText == '>'){
@@ -303,6 +342,10 @@ if(!window.speechRecognitionInjection){
             pControl.appendChild(recordBtn);
             pControl.appendChild(playBtn);
             pControl.appendChild(nextBtn);
+
+            pTip.appendChild(tipLine);
+            pTip.appendChild(volBar);
+
             pControlWrapper.appendChild(pControl);
             pControlWrapper.appendChild(pTip);
             //document.body.insertBefore(pControl, document.body.firstChild);
@@ -487,6 +530,9 @@ if(!window.speechRecognitionInjection){
                 break;
             case 'closeTip':
                 speech_IO.recorder.closeTip(req.params.timeout, req.params.msg);
+                break;
+            case 'updateSoundWave':
+                speech_IO.recorder.updateSoundWave(req.params.msg);
                 break;
             case 'toggleControlBar':
                 speech_IO.recorder.toggleControlBar(req.params.type);

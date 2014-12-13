@@ -8,6 +8,7 @@
     var bufferLen = config.bufferLen || 4096;
     this.context = source.context;
     this.emptydatacount = 0;
+    this.emptyCheckCount = 0;
     // init empdata array
     //this.node = (this.context.createScriptProcessor ||
     //             this.context.createJavaScriptNode).call(this.context,
@@ -87,6 +88,11 @@
         for(var i = 0; i < l ; i++){
             vol += Math.abs(d[i*10]);
         }
+        self.emptyCheckCount ++;
+
+        //if(self.emptyCheckCount % 2 == 0){
+            sendCmd('updateSoundWave', {msg:vol});
+        //}
         
         if(vol < 10){
             self.emptydatacount ++;
