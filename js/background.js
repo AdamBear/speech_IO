@@ -196,15 +196,16 @@ function startRecordCmd(){
 }
 
 function getNlpCmd(str, callback){
-    var urlPrefix = "http://61.135.162.247:8088/?utf8=1&appid=0&uid=opp-test&from_app=hciapp-webdemo&server=offline&param=%7B%22server%22%3A%22custom_parser%22%2C%22domains%22%3A%5B%22website-dl%22%5D%7D&query=";
-
-    var url = urlPrefix + str;
-    $.getJSON(url, function(data){
-        console.log(data);
-        if(data.results.length > 0 && typeof callback == 'function'){
-            return callback(data);
-        }
-    });
+    //TODO use online service
+    var d = {
+        results:[
+            object:{
+                website:'baidu',
+                keywords:'苹果6',
+            }
+        ]
+    };
+    return callback(d);
 }
 
 function getControlBarStatus(){
